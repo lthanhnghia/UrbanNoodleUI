@@ -1,11 +1,21 @@
 import { useState } from 'react';
 
+type Props = {
+   onSubmitFilter: (dates: { startDate: string; endDate: string }) => void;
+  onSubmitToday: () => void;
+};
 
 
-const OverviewToolbar = () =>{
+const OverviewToolbar = ({ onSubmitToday, onSubmitFilter }: Props) =>{
     
       const [startDate, setStartDate] = useState('');
       const [endDate, setEndDate] = useState('');
+  const handleFilter = () => {
+    onSubmitFilter({
+      startDate,
+      endDate,
+    });
+  };
     return(
         <div className="d-flex align-items-end flex-wrap w-100">
 
@@ -31,9 +41,7 @@ const OverviewToolbar = () =>{
           </div>
 
           <button
-            onClick={() => {
-              console.log(startDate, endDate);
-            }}
+            onClick={handleFilter}
             className="btn btn-success"
           >
             Áp dụng
@@ -43,15 +51,15 @@ const OverviewToolbar = () =>{
         {/* Group right */}
         <div>
           <button
-            onClick={() => {
-              const today = new Date().toISOString().split('T')[0];
-              setStartDate(today);
-              setEndDate(today);
-            }}
-            className="btn btn-primary"
-          >
-            Hôm nay
-          </button>
+  onClick={() => {
+    setStartDate("");
+    setEndDate("");
+    onSubmitToday();
+  }}
+  className="btn btn-primary"
+>
+  Hôm nay
+</button>
         </div>
 
       </div>

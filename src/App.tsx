@@ -1,6 +1,7 @@
 
 import './App.css'
 import { useState } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import MainLayout from './layouts/MainLayout';
 import Dashboard from './pages/overview/OverviewPage';
 import DiningTableManagement from './pages/diningtables/DiningTableManagement';
@@ -31,9 +32,16 @@ function App() {
   };
 
   return (
-    <MainLayout activeMenu={activeMenu} onMenuClick={setActiveMenu}>
-      {renderPage()}
-    </MainLayout>
+    <BrowserRouter>
+      <Routes>
+       
+        <Route path="/admin" element={
+          <MainLayout activeMenu={activeMenu} onMenuClick={setActiveMenu}>
+            {renderPage()}
+          </MainLayout>
+        } />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

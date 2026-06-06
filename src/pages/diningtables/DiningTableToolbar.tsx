@@ -3,9 +3,10 @@ import { Search } from 'lucide-react';
 
 type Props = {
   onSubmit: (data: any) => void
+  onOpenCreate: () => void;
 }
 
-const DiningTableToolbar = ({ onSubmit }: Props) => {
+const DiningTableToolbar = ({ onSubmit, onOpenCreate }: Props) => {
  const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
@@ -68,7 +69,7 @@ const DiningTableToolbar = ({ onSubmit }: Props) => {
         </select>
 
         {/* Add Button */}
-        <button type="button" className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+        <button type="button" className="btn btn-primary" onClick={onOpenCreate}>
           +Thêm
         </button>
 

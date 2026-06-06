@@ -1,7 +1,7 @@
 import axios from "axios";
 import { Cookies } from "react-cookie";
 
-const baseURL = "https://localhost:7274";
+export const baseURL = "https://localhost:7274";
 
 type RequestOption = {
   method: "GET" | "POST" | "PUT" | "DELETE";
@@ -10,7 +10,7 @@ type RequestOption = {
   params?: any;
 };
 
-const Request = async ({ method, path, data, params }: RequestOption) => {
+export const Request = async ({ method, path, data, params }: RequestOption) => {
   const token = new Cookies().get("token");
  const isFormData = data instanceof FormData;
   try {
@@ -22,7 +22,7 @@ const Request = async ({ method, path, data, params }: RequestOption) => {
       params,
        headers: {
         ...(token && { Authorization: `Bearer ${token}` }),
-        ...(!isFormData && { "Content-Type": "application/json" }) // 👈 chỉ set khi KHÔNG phải FormData
+        ...(!isFormData && { "Content-Type": "application/json" }) 
       }
     });
 
@@ -32,5 +32,4 @@ const Request = async ({ method, path, data, params }: RequestOption) => {
     throw error; // 👈 cực quan trọng
   }
 };
-
-export default Request;
+ 

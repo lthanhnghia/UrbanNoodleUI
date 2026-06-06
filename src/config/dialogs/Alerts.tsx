@@ -1,7 +1,8 @@
 import  { useEffect } from "react";
 import Swal from "sweetalert2";
+import type { SweetAlertIcon } from "sweetalert2";
 type AlertProps = {
-  type: string;
+  type: SweetAlertIcon | "";
   title: string;
   position?: "top" | "top-end" | "top-start" | "center" | "bottom";
   id:number
@@ -24,10 +25,10 @@ const Alert = ({ type, title, id, position = "top-end" }: AlertProps) => {
     });
 
     Toast.fire({
-      icon: type,
+      icon: type as SweetAlertIcon,
       title: title,
     });
-  }, [id]); // 👈 chỉ cần id
+  }, [id, type, title, position]); // dependencies for useEffect
 
   return null;
 };

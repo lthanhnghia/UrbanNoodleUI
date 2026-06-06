@@ -5,12 +5,24 @@ type Props = {
   onClose: () => void;
   onSubmit: (data: Employee) => void;
    open: boolean;
+   errors: {
+    phone?: string[];
+    fullname?: string[];
+    password?: string[];
+    role?: string[];
+  };
 };
 
-const EmployeeModalUpdate = ({ open,onClose,employee, onSubmit }: Props) => {
+const EmployeeModalUpdate = ({ open,onClose,employee, onSubmit, errors }: Props) => {
     const [fullname, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [role, setRole] = useState("admin");
+  const [localErrors, setLocalErrors] = useState({
+    phone: [] as string[],
+    fullname: [] as string[],
+    password: [] as string[],
+    role: [] as string[],
+  });
 
   useEffect(() => {
     if (!employee) return;
@@ -22,6 +34,26 @@ const EmployeeModalUpdate = ({ open,onClose,employee, onSubmit }: Props) => {
   }, [employee]);
   const handleUpdate = () => {
     if (!employee) return;
+
+    // Validation
+    const newErrors = {
+      phone: [] as string[],
+      fullname: [] as string[],
+      password: [] as string[],
+      role: [] as string[],
+    };
+    if (!fullname.trim()) {
+      newErrors.fullname = ["Họ và tên không được để trống"];
+    }
+    if (!phone.trim()) {
+      newErrors.phone = ["Số điện thoại không được để trống"];
+    }
+
+    setLocalErrors(newErrors);
+
+    if (newErrors.fullname.length > 0 || newErrors.phone.length > 0) {
+      return;
+    }
 
     const data: Employee = {
       ...employee,
@@ -54,20 +86,40 @@ const EmployeeModalUpdate = ({ open,onClose,employee, onSubmit }: Props) => {
               <label className="form-label">Họ và tên</label>
               <input
                 type="text"
-                className="form-control"
+                  className={`form-control ${(localErrors.fullname?.length || errors.fullname?.length) ? "is-invalid" : ""}`}
                 value={fullname}
                 onChange={(e) => setFullName(e.target.value)}
               />
+              {(localErrors.fullname && localErrors.fullname.length > 0) && (
+                <div className="invalid-feedback">
+                  {localErrors.fullname[0]}
+                </div>
+              )}
+              {(!localErrors.fullname || localErrors.fullname.length === 0) && errors.fullname && errors.fullname.length > 0 && (
+                <div className="invalid-feedback">
+                  {errors.fullname[0]}
+                </div>
+              )}
             </div>
 
             <div className="mb-3">
               <label className="form-label">Số điện thoại</label>
               <input
                 type="text"
-                className="form-control"
+                className={`form-control ${(localErrors.phone?.length || errors.phone?.length) ? "is-invalid" : ""}`}
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
               />
+              {(localErrors.phone && localErrors.phone.length > 0) && (
+                  <div className="invalid-feedback">
+                    {localErrors.phone[0]}
+                  </div>
+                )}
+              {(!localErrors.phone || localErrors.phone.length === 0) && errors.phone && errors.phone.length > 0 && (
+                  <div className="invalid-feedback">
+                    {errors.phone[0]}
+                  </div>
+                )}
             </div>
 
 

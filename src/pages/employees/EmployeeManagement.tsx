@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import EmployeeRequest from '../../services/EmployeeRequest';
+import ApiRequest from '../../services/ApiRequest';
 import EmployeeModal from './EmployModal';
 import type { Employee } from '../../types';
 import AlertConfirm from '../../config/dialogs/Confirm';
@@ -7,6 +7,8 @@ import Alert from '../../config/dialogs/Alerts';
 import EmployeeToolbar from './EmployeeToolbar';
 import EmployeeTable from './EmployeeTable';
 import EmployeeModalUpdate from './EmployModalUpdate';
+import type { SweetAlertIcon } from 'sweetalert2';
+import Loading from '../../config/load/Loading';
 
 const EmployeeManagement = () => {
 
@@ -14,10 +16,15 @@ const EmployeeManagement = () => {
 
   const [employees, setEmployees] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+    const [load, setLoad] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const [alert, setAlert] = useState({
+  const [alert, setAlert] = useState<{
+    type: SweetAlertIcon | "";
+    title: string;
+    id: number;
+  }>({
     type: "",
     title: "",
     id: 0
@@ -44,7 +51,7 @@ const EmployeeManagement = () => {
 
     setLoading(true);
     try {
-      const res = await EmployeeRequest({
+      const res = await ApiRequest({
         method: "GET",
         path: "/api/account",
         params: {
@@ -62,16 +69,17 @@ const EmployeeManagement = () => {
       setLoading(false);
     }
   };
+  
   useEffect(() => {
-    fetchEmployees({});
-  }, []);
+    fetchEmployees({search:searchTerm});
+  }, [searchTerm]);
 
   const handleScroll = async (lastId: number) => {
     if (loading || !hasMore) return;
     setLoading(true);
 
     try {
-      const res = await EmployeeRequest({
+      const res = await ApiRequest({
         method: "GET",
         path: "/api/account",
         params: {
@@ -101,24 +109,27 @@ const EmployeeManagement = () => {
   const handleAddEmployee = async (datas: any) => {
     
     try {
-      const res = await EmployeeRequest({
+      setLoad(true);
+      const res = await ApiRequest({
         method: "POST",
         path: "/api/account",
         data: datas
       });
       console.log("RES:", res.status);
       if (res.status === 200) {
+        setLoad(false);
         setAlert({
           type: "success",
           title: "Thêm mới thành công",
           id: Date.now()
         });
         setHasMore(true);
-        setOpenCreateModal(false);     // 👈 đóng modal
+        setOpenCreateModal(false);     
         setResetKey(prev => prev + 1);
       }
 
     } catch (error: any) {
+      setLoad(false);
       const apiError = error.response?.data;
       const errors = apiError.errors;
       setFormErrors({
@@ -144,13 +155,14 @@ const EmployeeManagement = () => {
 
   // 👉 nhận từ Modal
   const handleUpdateEmployee = async (data: any) => {
+    setLoad(true);
     try {
-      const res = await EmployeeRequest({
+      const res = await ApiRequest({
         method: "PUT",
         path: `/api/account/${data.id}`,
         data: data
       });
-      console.log("RES:", res.status);
+      setLoad(false);
       if (res.status === 200) {
         setAlert({
           type: "success",
@@ -174,7 +186,16 @@ const EmployeeManagement = () => {
       }
 
     } catch (error: any) {
+      setLoad(false);
       const apiError = error.response?.data;
+       const errors = apiError.errors;
+       console.log("API Errors:", errors.fullname);
+      setFormErrors({
+        phone: errors?.Phone || [],
+        fullname: errors?.fullName || [],
+        password: errors?.Password || [],
+        role: errors?.Role || [],
+      });
       setAlert({
         type: "error",
         title: apiError.Description,
@@ -193,11 +214,13 @@ const EmployeeManagement = () => {
 
     try {
       if (ok) {
-        const res = await EmployeeRequest({
+        setLoad(true);
+        const res = await ApiRequest({
           method: "DELETE",
           path: `/api/account/${data.id}`,
         });
         if (res.status === 200) {
+          setLoad(false);
           setAlert({
             type: "success",
             title: "Xóa nhân viên thành công",
@@ -210,6 +233,7 @@ const EmployeeManagement = () => {
         }
       }
     } catch (error: any) {
+      setLoad(false);
       const apiError = error.response?.data;
       
       setAlert({
@@ -223,8 +247,9 @@ const EmployeeManagement = () => {
 
   return (
     <div>
-
+      <Loading show={load} />
       <Alert type={alert.type} title={alert.title} id={alert.id} />
+
       <EmployeeToolbar onSubmit={hanldeFilterEmployee}
         onOpenCreate={() => setOpenCreateModal(true)}
       />
@@ -242,6 +267,7 @@ const EmployeeManagement = () => {
         onClose={() => setOpenUpdateModal(false)}
         employee={selectedEmployee}
         onSubmit={handleUpdateEmployee}
+        errors={formErrors}
       />
       <EmployeeModal
         open={openCreateModal}

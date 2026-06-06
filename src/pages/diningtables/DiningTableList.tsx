@@ -1,18 +1,41 @@
-import type { DiningTable } from "../../types";
+import { useRef } from "react";
 
 type Props = {
-  diningtable: DiningTable[];
+  diningtable: any[];
+   onLoadMore: (lastId: number) => void;
   onEdit: (emp: any) => void;
   onDelete: (emp: any) => void;
+   onOpenUpdateModal: () => void;
 };
 
 
-const DiningTableList = ({ diningtable,onEdit,onDelete}: Props) =>{
-      
+const DiningTableList = ({ diningtable,onLoadMore,onEdit,onDelete,onOpenUpdateModal}: Props) =>{
+    const tableRef = useRef<HTMLDivElement>(null);
+      const handleScroll = () => {
+        const el = tableRef.current;
+        if (!el) return;
+
+        const { scrollTop, scrollHeight, clientHeight } = el;
+
+        // khi scroll gần chạm đáy (còn 50px)
+        if (scrollTop + clientHeight >= scrollHeight - 50) {
+            if (diningtable.length > 0) {
+                const lastId = diningtable[diningtable.length - 1].id;
+                onLoadMore(lastId);
+            }
+        }
+    };
 
     return (
         <div className="card">
-            <div className="card-body">
+            <div className="card-body"
+             ref={tableRef}
+                onScroll={handleScroll}
+                style={{
+                    maxHeight: "180px",   // 👈 bắt buộc phải có
+                    overflowY: "auto"     // 👈 bật scroll
+                }}
+            >
                 <table className="table">
                     <thead>
                         <tr>
@@ -32,9 +55,10 @@ const DiningTableList = ({ diningtable,onEdit,onDelete}: Props) =>{
                                     <button
                                         type="button"
                                         className="btn btn-primary"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#exampleModalUpdate"
-                                       onClick={() => onEdit(dt)}
+                                       onClick={() => {
+                                         onEdit(dt);
+                                         onOpenUpdateModal();
+                                       }}
                                     >
                                         Sửa
                                     </button>

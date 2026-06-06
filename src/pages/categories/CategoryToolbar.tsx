@@ -3,9 +3,10 @@ import { Search } from 'lucide-react';
 
 type Props = {
   onSubmit: (data: any) => void
+  onOpenCreate: () => void;
 }
 
-const CategoryToolbar = ({ onSubmit }: Props) => {
+const CategoryToolbar = ({ onSubmit, onOpenCreate }: Props) => {
   const [searchTerm, setSearchTerm] = useState('');
 
   const handleFilter = () => {
@@ -49,7 +50,7 @@ const CategoryToolbar = ({ onSubmit }: Props) => {
 
 
         {/* Add Button */}
-        <button type="button" className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+        <button type="button" className="btn btn-primary" onClick={onOpenCreate}>
           +Thêm
         </button>
 
